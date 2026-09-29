@@ -106,7 +106,7 @@ El usuario de la app tiene el rol `semilleroApp`:
 | `$lookup` entre colecciones | Desactivar validaciones (`collMod`) |
 | | Borrar colecciones · leer `_meta` · acceder a otras bases |
 
-Si la API usa un ODM que crea índices al arrancar (p. ej. Beanie), hay que desactivarlo (`init_beanie(..., skip_indexes=True)`): los índices se gestionan en los scripts.
+Si la API usa un ODM que crea índices al arrancar (p. ej. Beanie), desactivar por(`init_beanie(..., skip_indexes=True)`): los índices se gestionan en los scripts.
 
 ## Cambios al esquema
 
