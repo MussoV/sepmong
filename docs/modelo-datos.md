@@ -1,4 +1,4 @@
-# Modelo de datos — MongoDB
+# Modelo de datos — MongoDB 7.0
 
 Base: `semillero` · Versión de esquema: **1** (`_meta.esquema`)
 Scripts: `mongo-init/01-colecciones.js`, `02-roles-usuarios.js`, `03-semillas.js`

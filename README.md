@@ -1,6 +1,6 @@
 # sepmong — Base de datos documental del semillero
 
-MongoDB 8.0 en Docker para el sitio web y dashboard del invernadero.
+MongoDB 7.0 en Docker para el sitio web y dashboard del invernadero.
 Guarda contenido, catálogo de sensores, umbrales, alertas, mensajes y auditoría.
 Las lecturas de sensores **no** están aquí: siguen en InfluxDB (escritas por Node-RED).
 
@@ -83,6 +83,15 @@ mongodb://semillero_app:<APP_DB_PASSWORD>@127.0.0.1:27017/semillero?authSource=s
 
 El usuario de la app no puede crear índices, desactivar validaciones ni editar la auditoría.
 Si se usa un ODM que crea índices al arrancar (p. ej. Beanie), desactivarlo.
+
+## Versión de MongoDB
+
+Se usa **7.0** porque MongoDB 8.0+ se niega a arrancar en kernels Linux 6.19 a 7.0.13
+(incompatibilidad con TCMalloc, [SERVER-121912](https://jira.mongodb.org/browse/SERVER-121912)).
+MongoDB 7.0 tiene soporte hasta el 31 de agosto de 2027.
+
+Para migrar a 8.0 más adelante: kernel >= 7.0.14 (`uname -r`), imagen `mongo:8.0` (>= 8.0.30),
+y seguir la guía oficial de actualización 7.0 → 8.0 (backup antes).
 
 ## Seguridad
 
