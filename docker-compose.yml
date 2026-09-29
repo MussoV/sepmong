@@ -1,0 +1,40 @@
+# Proyecto independiente del stack existente (influx, nodered, grafana, etc.)
+# Ubicación sugerida: /opt/semillero
+name: semillero
+
+services:
+  mongo:
+    image: mongo:8.0                 # versión fija, nunca :latest
+    container_name: semillero-mongo
+    restart: unless-stopped
+    command: ["--wiredTigerCacheSizeGB", "1"]   # limita la caché a 1 GB (el servidor tiene 7 GB compartidos)
+    env_file: .env
+    environment:
+      MONGO_INITDB_DATABASE: ${APP_DB_NAME}
+    ports:
+      # SOLO loopback. Docker se salta ufw, así que esto es la protección real.
+      # Cuando exista el túnel WireGuard se agrega una línea con la IP del túnel, p. ej.:
+      # - "10.8.0.1:27017:27017"
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - ./data/mongo:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d:ro   # solo se ejecuta la primera vez (data vacía)
+      - ./backups:/backups
+    mem_limit: 2g
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - semillero
+
+networks:
+  semillero:
+    name: semillero

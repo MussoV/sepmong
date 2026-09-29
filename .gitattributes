@@ -1,0 +1,7 @@
+# Forzar saltos de línea LF: los scripts se ejecutan en Linux.
+# Sin esto, Git en Windows los convierte a CRLF y bash falla con '\r'.
+* text=auto eol=lf
+*.sh text eol=lf
+*.js text eol=lf
+*.yml text eol=lf
+*.md text eol=lf

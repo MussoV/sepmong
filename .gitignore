@@ -1,0 +1,8 @@
+# Secretos
+.env
+
+# Datos y backups (viven solo en el servidor)
+data/*
+!data/.gitkeep
+backups/*
+!backups/.gitkeep
