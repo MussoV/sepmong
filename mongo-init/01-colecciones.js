@@ -122,7 +122,7 @@ coleccion("invernaderos", {
 coleccion("variables", {
   required: ["_id", "nombre", "unidad", "activo"],
   properties: {
-    _id: CODIGO,                                   // "temperatura", "humedad_relativa", "ph"...
+    _id: CODIGO,                                   // "temperatura", "humedad", "ph"...
     nombre: { bsonType: "string", minLength: 1 },
     unidad: { bsonType: "string" },
     decimales: { bsonType: "int", minimum: 0, maximum: 6 },

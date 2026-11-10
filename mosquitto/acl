@@ -1,0 +1,27 @@
+# Copia de referencia de /mosquitto/config/acl.
+# Cada dispositivo solo puede publicar o leer sus propios tópicos (RF-14).
+# Tras editar en el servidor: docker kill -s HUP mosquitto  (no desconecta a nadie)
+
+# Node-RED: solo lee (guarda en InfluxDB)
+user nodered
+topic read sensores/#
+topic read invernadero/#
+
+# ESP32 de sensores (nodo1 activo; nodo2 preparado en el firmware)
+user nodo1
+topic write sensores/nodo1
+topic write sensores/nodo2
+topic write sensores/esp32/estado
+
+# PLC Beckhoff/TwinCAT: estado de la bomba de la torre vertical y temperatura para el extractor
+user bomba
+topic write invernadero/bombaTVertical/estado
+topic read invernadero/temperatura
+
+# Diagnóstico (mosquitto_sub)
+user monitor
+topic read #
+
+# PENDIENTE: nadie tiene permiso para publicar invernadero/temperatura.
+# Cuando se defina quién la envía al PLC (p. ej. Node-RED), darle a ese usuario:
+#   topic write invernadero/temperatura

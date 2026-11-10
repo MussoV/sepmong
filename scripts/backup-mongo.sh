@@ -16,6 +16,7 @@ docker exec semillero-mongo mongodump \
   --password "${MONGO_INITDB_ROOT_PASSWORD}" \
   --authenticationDatabase admin \
   --db "${APP_DB_NAME}" \
+  --dumpDbUsersAndRoles \
   --archive="/backups/${ARCHIVO}" \
   --gzip
 
@@ -23,5 +24,10 @@ find "${BASE_DIR}/backups" -name "mongo-*.archive.gz" -mtime +${RETENCION_DIAS} 
 
 echo "$(date -u +%FT%TZ) OK ${ARCHIVO}"
 
+# Incluye usuarios y roles de la base (semillero_app / semilleroApp).
+# Restauración total tras un desastre (como root, dentro del contenedor):
+#   mongorestore -u root -p ... --authenticationDatabase admin \
+#     --archive=/backups/ARCHIVO --gzip --db semillero --restoreDbUsersAndRoles --drop
+#
 # PENDIENTE: copiar el archivo fuera del servidor (R2 / GCS).
 # Un backup en el mismo disco no protege contra la pérdida del servidor.

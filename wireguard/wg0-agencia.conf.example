@@ -1,0 +1,47 @@
+# /etc/wireguard/wg0.conf — SERVIDOR DE LA AGENCIA (donde viven los datos)
+#
+# Este lado INICIA el túnel hacia la VM de TI. No necesita puertos abiertos
+# desde internet (el firewall de la universidad los bloquea de todas formas).
+#
+# Plan de direcciones del túnel:
+#   10.8.0.1  servidor de la agencia (este)
+#   10.8.0.2  VM de TI (pública)
+
+[Interface]
+Address = 10.8.0.1/24
+PrivateKey = <CONTENIDO_DE_/etc/wireguard/privada.key_DE_ESTE_SERVIDOR>
+
+# --- Firewall del túnel ---------------------------------------------------
+# La VM da la cara a internet: si alguien la compromete, NO debe poder usar el
+# túnel para llegar a Node-RED, Grafana, Filebrowser, go2rtc ni al SSH de aquí.
+# Por wg0 solo se permite: Mongo (27017), InfluxDB (8086) y ping.
+# MQTT (1883) NO: el broker es anónimo y la VM podría publicar en cualquier tópico
+# (incluida la bomba). La API obtiene el tiempo real leyendo Influx.
+#
+# DOCKER-USER filtra lo que va a contenedores (Docker se salta ufw).
+# INPUT filtra lo que va a servicios del propio host (p. ej. sshd).
+# Se crea DOCKER-USER si aún no existe (Docker arranca después de WireGuard).
+PostUp = iptables -N DOCKER-USER 2>/dev/null || true
+PostUp = iptables -I DOCKER-USER -i %i -j DROP
+PostUp = iptables -I DOCKER-USER -i %i -p tcp -m conntrack --ctorigdstport 8086 -j ACCEPT
+PostUp = iptables -I DOCKER-USER -i %i -p tcp -m conntrack --ctorigdstport 27017 -j ACCEPT
+PostUp = iptables -I DOCKER-USER -i %i -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+PostUp = iptables -I INPUT -i %i -j DROP
+PostUp = iptables -I INPUT -i %i -p icmp -j ACCEPT
+PostUp = iptables -I INPUT -i %i -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+PostDown = iptables -D DOCKER-USER -i %i -j DROP
+PostDown = iptables -D DOCKER-USER -i %i -p tcp -m conntrack --ctorigdstport 8086 -j ACCEPT
+PostDown = iptables -D DOCKER-USER -i %i -p tcp -m conntrack --ctorigdstport 27017 -j ACCEPT
+PostDown = iptables -D DOCKER-USER -i %i -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+PostDown = iptables -D INPUT -i %i -j DROP
+PostDown = iptables -D INPUT -i %i -p icmp -j ACCEPT
+PostDown = iptables -D INPUT -i %i -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+[Peer]
+# VM de TI
+PublicKey = <CONTENIDO_DE_/etc/wireguard/publica.key_DE_LA_VM>
+Endpoint = <IP_PUBLICA_DE_LA_VM>:51820
+AllowedIPs = 10.8.0.2/32
+# Mantiene el túnel abierto desde este lado (detrás del firewall de la U)
+PersistentKeepalive = 25

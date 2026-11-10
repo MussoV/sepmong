@@ -13,9 +13,11 @@ const ahora = new Date();
 const ts = { creado_en: ahora, actualizado_en: ahora };
 
 app.variables.insertMany([
+  // Los _id son los nombres de campo reales en MQTT e Influx (measurement "ambiente").
+  // rango_valido de temperatura = RANGO_FISICO del nodo "validador datos" de Node-RED.
   { _id: "temperatura", nombre: "Temperatura", unidad: "°C", decimales: NumberInt(1),
-    rango_valido: { min: -10, max: 60 }, activo: true, ...ts },
-  { _id: "humedad_relativa", nombre: "Humedad relativa", unidad: "%", decimales: NumberInt(1),
+    rango_valido: { min: -40, max: 80 }, activo: true, ...ts },
+  { _id: "humedad", nombre: "Humedad relativa", unidad: "%", decimales: NumberInt(1),
     rango_valido: { min: 0, max: 100 }, activo: true, ...ts },
   { _id: "ph", nombre: "pH", unidad: "pH", decimales: NumberInt(2),
     rango_valido: { min: 0, max: 14 }, activo: false, ...ts },   // se activa cuando haya sensor

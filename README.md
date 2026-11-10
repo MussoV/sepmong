@@ -52,7 +52,7 @@ source .env
 docker exec -it semillero-mongo mongosh --quiet \
   -u "$APP_DB_USER" -p "$APP_DB_PASSWORD" --authenticationDatabase "$APP_DB_NAME" "$APP_DB_NAME" \
   --eval 'print(db.getCollectionNames().length + " colecciones"); print(db.variables.countDocuments() + " variables")'
-# Esperado: 13 colecciones, 3 variables
+# Esperado: 14 colecciones (13 + _meta), 3 variables
 ```
 
 ### Backup
@@ -92,6 +92,39 @@ MongoDB 7.0 tiene soporte hasta el 31 de agosto de 2027.
 
 Para migrar a 8.0 más adelante: kernel >= 7.0.14 (`uname -r`), imagen `mongo:8.0` (>= 8.0.30),
 y seguir la guía oficial de actualización 7.0 → 8.0 (backup antes).
+
+## Migraciones
+
+Los scripts de `mongo-init/` solo corren en el primer arranque. Después, los cambios van en
+`migraciones/`, en orden, y **también se ejecutan en una instalación nueva** tras el primer arranque:
+
+| Migración | Qué hace |
+|---|---|
+| `002-datos-reales.js` | `humedad_relativa` → `humedad`, rango físico −40 a 80 °C, catálogo inicial (`invernadero-1`, gateway Node-RED, sensor `nodo1` → Influx `sensores/ambiente`) |
+
+```bash
+cd /opt/semillero && source .env
+docker cp migraciones/002-datos-reales.js semillero-mongo:/tmp/
+docker exec semillero-mongo mongosh "mongodb://127.0.0.1:27017/admin" \
+  -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --quiet /tmp/002-datos-reales.js
+```
+
+Son idempotentes: ejecutarlas dos veces no duplica nada.
+
+## Broker MQTT
+
+Autenticación por dispositivo (RF-14), ACL, procedimientos y verificación: [`mosquitto/`](mosquitto/README.md).
+
+## Túnel WireGuard con la VM de TI
+
+Plantillas en `wireguard/`. El servidor de la agencia (10.8.0.1) inicia el túnel hacia
+la VM (10.8.0.2, UDP 51820). Por el túnel la VM solo alcanza Mongo e InfluxDB (MQTT no: el broker es anónimo);
+el resto de servicios de la agencia (Node-RED, Grafana, Filebrowser, cámaras, SSH) quedan
+bloqueados aunque la VM sea comprometida.
+
+Pasos detallados: ver el historial del proyecto o `wireguard/*.example` (cada archivo
+explica dónde va). Después de levantar el túnel, descomentar en `docker-compose.yml`
+la línea `10.8.0.1:27017:27017` y ejecutar `docker compose up -d`.
 
 ## Seguridad
 

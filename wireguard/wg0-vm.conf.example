@@ -1,0 +1,16 @@
+# /etc/wireguard/wg0.conf — VM DE TI (pública, con el dominio)
+#
+# Este lado ESCUCHA. El servidor de la agencia se conecta aquí.
+# Requiere el puerto UDP 51820 abierto de entrada (pedido a TI) y:
+#   sudo ufw allow 51820/udp
+# WireGuard no responde a paquetes sin llave válida: el puerto abierto no es visible.
+
+[Interface]
+Address = 10.8.0.2/24
+ListenPort = 51820
+PrivateKey = <CONTENIDO_DE_/etc/wireguard/privada.key_DE_LA_VM>
+
+[Peer]
+# Servidor de la agencia. Sin Endpoint: su IP es dinámica y es él quien inicia.
+PublicKey = <CONTENIDO_DE_/etc/wireguard/publica.key_DE_LA_AGENCIA>
+AllowedIPs = 10.8.0.1/32

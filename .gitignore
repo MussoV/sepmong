@@ -6,3 +6,7 @@ data/*
 !data/.gitkeep
 backups/*
 !backups/.gitkeep
+
+# WireGuard: llaves y configs reales (solo se versionan los .example)
+wireguard/*.key
+wireguard/wg0.conf

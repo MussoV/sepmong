@@ -22,6 +22,9 @@ SOLO_INSERCION.forEach((c) =>
   privilegios.push({ resource: { db: dbName, collection: c }, actions: ["find", "insert"] })
 );
 
+// Listar los nombres de las colecciones (lo usan Compass, mongosh y algunos drivers).
+privilegios.push({ resource: { db: dbName, collection: "" }, actions: ["listCollections"] });
+
 app.createRole({ role: "semilleroApp", privileges: privilegios, roles: [] });
 
 app.createUser({
@@ -30,4 +33,4 @@ app.createUser({
   roles: [{ role: "semilleroApp", db: dbName }],
 });
 
-print(`Rol 'semilleroApp' (${privilegios.length} colecciones) y usuario '${process.env.APP_DB_USER}' creados.`);
+print(`Rol 'semilleroApp' (${privilegios.length - 1} colecciones) y usuario '${process.env.APP_DB_USER}' creados.`);

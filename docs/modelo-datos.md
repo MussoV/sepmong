@@ -61,7 +61,7 @@ Las relaciones son **referencias por `_id`** (Mongo no las hace cumplir): la API
 
 **`invernaderos`** — un documento por invernadero. `codigo` único (`invernadero-1`). Permite crecer a varios invernaderos sin rediseño (RNF-02).
 
-**`variables`** — catálogo abierto de magnitudes (RF-13). El `_id` es el código estable que usan Node-RED, MQTT e Influx (`temperatura`, `humedad_relativa`, `ph`). `rango_valido` sirve para que la ingesta descarte lecturas físicamente imposibles, como las del sensor defectuoso que se retiró. Agregar CO₂ o luminosidad es insertar un documento.
+**`variables`** — catálogo abierto de magnitudes (RF-13). El `_id` es el código estable que usan Node-RED, MQTT e Influx (`temperatura`, `humedad`, `ph`), iguales a los campos del measurement `ambiente`. `rango_valido` replica el filtro físico que ya aplica Node-RED (−40 a 80 °C), para que el catálogo y el IoT digan lo mismo. Agregar CO₂ o luminosidad es insertar un documento.
 
 **`dispositivos`** — quien se autentica contra la API de ingesta (RF-14). Hoy es el gateway Node-RED; mañana puede ser cada nodo. La API key tiene la forma `sk_<prefijo>_<secreto>`: el prefijo se guarda en claro para encontrar el dispositivo y el secreto solo como hash (argon2/bcrypt). Revocar = `activo: false`.
 
@@ -106,7 +106,7 @@ El usuario de la app tiene el rol `semilleroApp`:
 | `$lookup` entre colecciones | Desactivar validaciones (`collMod`) |
 | | Borrar colecciones · leer `_meta` · acceder a otras bases |
 
-Si la API usa un ODM que crea índices al arrancar (p. ej. Beanie), desactivar por(`init_beanie(..., skip_indexes=True)`): los índices se gestionan en los scripts.
+Si la API usa un ODM que crea índices al arrancar (p. ej. Beanie), hay que desactivarlo (`init_beanie(..., skip_indexes=True)`): los índices se gestionan en los scripts.
 
 ## Cambios al esquema
 
